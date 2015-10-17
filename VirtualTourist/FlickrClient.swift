@@ -87,7 +87,7 @@ extension FlickrClient {
         static let BaseURL : String = "https://api.flickr.com/services/rest"
         static let Extras: String = "url_m"
         static let FlickrApiKey: String = "363e853c336f873afd8299b13c2c0eba"
-        static let PerPage: Int = 1
+        static let PerPage: Int = 24
         static let NoJson: Int = 1
         static let Format = "json"
     }

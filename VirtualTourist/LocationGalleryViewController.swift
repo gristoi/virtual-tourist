@@ -49,14 +49,21 @@ class LocationGalleryViewController: UIViewController {
         mapView.addAnnotation(pin)
         // Set delegate
         fetchedResultsController.delegate = self
-        
+        do{
+            try fetchedResultsController.performFetch()
+        } catch _ {
+            
+        }
         // Perform fetch results
         let repo = GalleryRepository.sharedInstance();
-        repo.getPhotos(pin, context:sharedContext,   completionHandler: {
-            a,b in
-            }, errorHandler: {
-                error in
-        })
+        if pin.photos.isEmpty {
+            repo.getPhotos(pin, context:sharedContext,   completionHandler: {
+                a,b in
+                }, errorHandler: {
+                    error in
+            })
+        }
+
         // Do any additional setup after loading the view.
     }
 
@@ -129,7 +136,7 @@ extension LocationGalleryViewController: NSFetchedResultsControllerDelegate {
 
 extension LocationGalleryViewController: UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return fetchedResultsController.fetchedObjects?.count ?? 0
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -139,11 +146,11 @@ extension LocationGalleryViewController: UICollectionViewDelegate {
         // Get reference to PhotoCell object at cell in question
         let cell = self.collectionView.dequeueReusableCellWithReuseIdentifier("GalleryCell", forIndexPath: indexPath) as! GalleryViewCell
         
-        FlickrClient.sharedInstance().getImage(photo.srcUrl!, completionHandler: {
+        FlickrClient.sharedInstance().getImage(photo.srcUrl, completionHandler: {
             responseCode, data in
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 let image = UIImage(data: data)
-
+                print("in here")
                 // Assign image to image view of cell
                 cell.image.image = image
                 cell.indicator.stopAnimating()

@@ -13,8 +13,6 @@ import CoreData
 class TouristMapViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
-    
-    var pins = [Pin]()
 
     struct RegionBoundary {
         static let Latitude = "latitude"
@@ -52,8 +50,8 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
         longPressGesture.minimumPressDuration = 1.0
         mapView.addGestureRecognizer(longPressGesture)
         setMapRegion()
-        pins = getPins()
-        mapView.addAnnotations(pins)
+        fetchedResultsController.delegate = self
+        getPins()
     }
 
     override func didReceiveMemoryWarning() {
@@ -62,17 +60,16 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     // Fetch all pins
-    func getPins() -> [Pin] {
-        
-        let fetchRequest = NSFetchRequest(entityName: "Pin")
+    func getPins() -> Void {
         do {
-            let results = try sharedContext.executeFetchRequest(fetchRequest) as! [Pin]
-            return results
-            } catch _ as NSError {
-                print("no pins found")
-            }
-        return []
+            try fetchedResultsController.performFetch()
+        } catch _ {
+            print("no pins")
         }
+        if let pins = fetchedResultsController.fetchedObjects as? [Pin] {
+            mapView.addAnnotations(pins)
+        }
+    }
     
     func setMapRegion() {
         
@@ -84,7 +81,7 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
             
             mapView.setRegion(MKCoordinateRegionMake(CLLocationCoordinate2DMake(latitude, longitude), MKCoordinateSpanMake(latitudeDelta, longitudeDelta)), animated: false)
         }
-        }
+    }
         
     
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -96,7 +93,7 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
     }
     
     func onLongPressGesture(sender: UIGestureRecognizer) {
-        let touchPoint = sender.locationInView(mapView)
+        let touchPoint = sender.locationInView(sender.view)
         
         let newCoordinate:CLLocationCoordinate2D = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
         
@@ -112,17 +109,10 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
         
         // Add pin only at the gestureRecognizer .Began state. This is to prevent duplicate pins from being added if the user continues to hold press.
         if sender.state == UIGestureRecognizerState.Began {
+            let newPin = Pin(dictionary: dictionary, context: self.sharedContext)
             
-            dispatch_async(dispatch_get_main_queue()){
-                
-                let newPin = Pin(dictionary: dictionary, context: self.sharedContext)
-                
-                self.mapView.addAnnotation(newPin)
-                
-                self.pins.append(newPin)
-                
-                CoreDataStackManager.sharedInstance().saveContext()
-            }
+            self.mapView.addAnnotation(newPin)
+            CoreDataStackManager.sharedInstance().saveContext()
         }
     }
 }
@@ -133,7 +123,6 @@ extension TouristMapViewController: MKMapViewDelegate {
         //reuseID and pinView
         let reuseID = "pin"
         var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseID) as? MKPinAnnotationView
-        _ = mapView.gestureRecognizers![0] as! UILongPressGestureRecognizer
         //if no pinView, then create one
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseID)
@@ -154,6 +143,7 @@ extension TouristMapViewController: MKMapViewDelegate {
         locationGallery.pin = view.annotation as! Pin
        // photoVC.lat = view.annotation.coordinate.latitude
        // photoVC.lon = view.annotation.coordinate.longitude
-        self.navigationController?.pushViewController(locationGallery, animated: true)    }
+        self.navigationController?.pushViewController(locationGallery, animated: true)
+    }
     
 }

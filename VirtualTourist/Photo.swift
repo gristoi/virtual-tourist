@@ -8,11 +8,12 @@
 
 import Foundation
 import CoreData
-@objc(Photo)
+// @objc(Photo)
 class Photo: NSManagedObject {
 
-    @NSManaged var srcUrl: String?
-    @NSManaged var pin: Pin?
+    @NSManaged var srcUrl: String
+    @NSManaged var pin: Pin
+    @NSManaged var id: String
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -21,7 +22,8 @@ class Photo: NSManagedObject {
     init(pin: Pin , dict: [String:AnyObject], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Photo", inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
-        srcUrl = dict["srcUrl"] as? String
+        srcUrl = dict["url_m"] as! String
+        id = dict["id"] as! String
         self.pin =  pin
         try! context.save()
     }
