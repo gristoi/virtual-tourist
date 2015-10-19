@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 import CoreData
+
 class LocationGalleryViewController: UIViewController {
 
     var pin: Pin!
@@ -21,8 +22,7 @@ class LocationGalleryViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    
-    
+
     lazy var fetchedResultsController: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: "Photo")
@@ -38,8 +38,27 @@ class LocationGalleryViewController: UIViewController {
         return fetchedResultsController
         
         }()
+    
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext!
+    }
+    
+    @IBAction func newCollectionClicked(sender: AnyObject) {
+        
+        if !pin.photos.isEmpty {
+            for photo in fetchedResultsController.fetchedObjects as! [Photo] {
+                if photo.image != nil {
+                    FlickrClient.Caches.imageCache.storeImage(nil, withIdentifier: photo.srcUrl)
+                }
+                self.sharedContext.deleteObject(photo)
+            }
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
+        GalleryRepository.sharedInstance().getPhotos(pin, context:sharedContext,   completionHandler: {
+            a,b in
+            }, errorHandler: {
+                error in
+        })
     }
     
     override func viewDidLoad() {
@@ -63,25 +82,18 @@ class LocationGalleryViewController: UIViewController {
                     error in
             })
         }
-
-        // Do any additional setup after loading the view.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
 }
 
 extension LocationGalleryViewController: NSFetchedResultsControllerDelegate {
+    
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
         insertedIndexPaths = [NSIndexPath]()
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
     }
     
-    // May be called multiple times, once for each Test instance being added to Core Data
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
@@ -94,12 +106,11 @@ extension LocationGalleryViewController: NSFetchedResultsControllerDelegate {
             updatedIndexPaths.append(indexPath!)
             break
         case .Move:
-            print("move an item")
-            break
-        default:
+            print("move")
             break
         }
     }
+    
     func controller(controller: NSFetchedResultsController,
         didChangeSection sectionInfo: NSFetchedResultsSectionInfo,
         atIndex sectionIndex: Int,
@@ -135,6 +146,7 @@ extension LocationGalleryViewController: NSFetchedResultsControllerDelegate {
 }
 
 extension LocationGalleryViewController: UICollectionViewDelegate {
+    
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return fetchedResultsController.fetchedObjects?.count ?? 0
     }
@@ -145,28 +157,35 @@ extension LocationGalleryViewController: UICollectionViewDelegate {
         
         // Get reference to PhotoCell object at cell in question
         let cell = self.collectionView.dequeueReusableCellWithReuseIdentifier("GalleryCell", forIndexPath: indexPath) as! GalleryViewCell
-        
-        FlickrClient.sharedInstance().getImage(photo.srcUrl, completionHandler: {
-            responseCode, data in
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                let image = UIImage(data: data)
-                print("in here")
-                // Assign image to image view of cell
-                cell.image.image = image
-                cell.indicator.stopAnimating()
-                // Enable "New Collection" button again after all images have been downloaded...
-            })
-            }, errorHandler: {
-            error in
-                print(error)
-        });
+        cell.indicator.startAnimating()
+        cell.backgroundColor = UIColor.grayColor()
+        if photo.image != nil {
+            cell.image.image = photo.image
+            cell.indicator.stopAnimating()
+            cell.indicator.hidden = true
+        } else {
+            cell.image.image = UIImage(named: "placeholder")
+            FlickrClient.sharedInstance().getImage(photo.srcUrl, completionHandler: {
+                responseCode, data in
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let image = UIImage(data: data)
+                    FlickrClient.Caches.imageCache.storeImage(image, withIdentifier: photo.srcUrl)
+                    // Assign image to image view of cell
+                    cell.image.image = image
+                    cell.indicator.stopAnimating()
+                    cell.indicator.hidden = true
+                })
+                }, errorHandler: {
+                    error in
+                    print(error)
+            });
+
+        }
         
         return cell
     }
     
     // MARK: - UICollectionViewDelegate Methods
-    
-    // Handle tap on a photo
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         // Remove from Core Data (Managed Object Context) and implicitly from device and collection view
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo

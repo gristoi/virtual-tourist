@@ -42,6 +42,7 @@ class FlickrClient: RestClient  {
                 } else {
                     completionHandler(responseCode, data)
                 }
+                ++self.currentPage
             },
             failure:{
                 errorResponse in
@@ -94,5 +95,9 @@ extension FlickrClient {
     
     struct Methods {
         static let Search: String = "flickr.photos.search"
+    }
+    
+    struct Caches {
+        static let imageCache = ImageCache()
     }
 }

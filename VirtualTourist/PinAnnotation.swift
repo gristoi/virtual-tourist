@@ -7,17 +7,20 @@
 //
 
 import MapKit
+import Foundation
+import UIKit
 
-class PinAnnotation: MKPointAnnotation {
+class PinAnnotation:NSObject, MKAnnotation {
     
-    var pin:Pin! {
-        didSet {
-            coordinate = pin.coordinate
+    private var coord : CLLocationCoordinate2D = CLLocationCoordinate2D(latitude:0, longitude:0)
+    
+    var coordinate: CLLocationCoordinate2D {
+        get {
+            return coord
         }
     }
-    
-    convenience init(_ pin:Pin) {
-        self.init()
-        self.setValue(pin, forKey: "pin")
+    func setCoordinate(newCoordinate: CLLocationCoordinate2D) {
+        self.coord = newCoordinate
     }
+
 }

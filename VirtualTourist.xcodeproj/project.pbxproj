@@ -22,6 +22,7 @@
 		44A17FAF1BCD981A00277C5A /* RestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A17FAE1BCD981A00277C5A /* RestClient.swift */; settings = {ASSET_TAGS = (); }; };
 		44A17FB21BCECB4100277C5A /* GalleryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A17FB11BCECB4100277C5A /* GalleryRepository.swift */; settings = {ASSET_TAGS = (); }; };
 		44A17FB41BD24A3B00277C5A /* GalleryViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A17FB31BD24A3B00277C5A /* GalleryViewCell.swift */; settings = {ASSET_TAGS = (); }; };
+		44A17FB61BD55F8300277C5A /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A17FB51BD55F8300277C5A /* ImageCache.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		44A17FAE1BCD981A00277C5A /* RestClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestClient.swift; sourceTree = "<group>"; };
 		44A17FB11BCECB4100277C5A /* GalleryRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryRepository.swift; sourceTree = "<group>"; };
 		44A17FB31BD24A3B00277C5A /* GalleryViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryViewCell.swift; sourceTree = "<group>"; };
+		44A17FB51BD55F8300277C5A /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,7 @@
 			children = (
 				44A17FAC1BCD980600277C5A /* FlickrClient.swift */,
 				44A17FAE1BCD981A00277C5A /* RestClient.swift */,
+				44A17FB51BD55F8300277C5A /* ImageCache.swift */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				449E51161BC7E786006D6DC9 /* Photo.swift in Sources */,
+				44A17FB61BD55F8300277C5A /* ImageCache.swift in Sources */,
 				449E50FA1BC1A372006D6DC9 /* TouristMapViewController.swift in Sources */,
 				449E510D1BC1A60B006D6DC9 /* CoreDataStackManager.swift in Sources */,
 				449E51181BC7E786006D6DC9 /* Pin.swift in Sources */,

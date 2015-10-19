@@ -23,7 +23,6 @@ class GalleryRepository {
                         if let photoArray = photoDict.valueForKey("photo") as? [[String: AnyObject]] {
                             _ = photoArray.map() { (dictionary: [String : AnyObject]) -> Photo in
                                 let photo = Photo(pin: pin, dict: dictionary, context: context)
-                                print(dictionary)
                                 return photo
                             }
                             //CoreDataStackManager.sharedInstance().saveContext()

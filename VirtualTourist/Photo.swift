@@ -8,7 +8,7 @@
 
 import Foundation
 import CoreData
-// @objc(Photo)
+import UIKit
 class Photo: NSManagedObject {
 
     @NSManaged var srcUrl: String
@@ -26,6 +26,12 @@ class Photo: NSManagedObject {
         id = dict["id"] as! String
         self.pin =  pin
         try! context.save()
+    }
+    
+    var image: UIImage? {
+        get {
+            return FlickrClient.Caches.imageCache.imageWithIdentifier(self.srcUrl)
+        }
     }
 
 }

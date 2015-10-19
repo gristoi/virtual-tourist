@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 import CoreData
+import Foundation
 
 class TouristMapViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
@@ -85,7 +86,7 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
         
     
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        print("region changed")
+        
         NSUserDefaults.standardUserDefaults().setDouble(mapView.centerCoordinate.latitude, forKey: RegionBoundary.Latitude)
         NSUserDefaults.standardUserDefaults().setDouble(mapView.centerCoordinate.longitude, forKey: RegionBoundary.Longitude)
         NSUserDefaults.standardUserDefaults().setDouble(mapView.region.span.latitudeDelta, forKey: RegionBoundary.LatitudeDelta)
@@ -97,9 +98,9 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
         
         let newCoordinate:CLLocationCoordinate2D = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
         
-        let newannotation = MKPointAnnotation()
+        let pinAnnotation = PinAnnotation()
         
-        newannotation.coordinate = newCoordinate
+        pinAnnotation.setCoordinate(newCoordinate)
         
         let dictionary: [String: AnyObject] = [
             Pin.Keys.Latitude: newCoordinate.latitude,
@@ -115,35 +116,37 @@ class TouristMapViewController: UIViewController, NSFetchedResultsControllerDele
             CoreDataStackManager.sharedInstance().saveContext()
         }
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "showGallery" {
+            let galleryVC = segue.destinationViewController as! LocationGalleryViewController
+            let pin : Pin = sender as! Pin
+            galleryVC.pin = pin
+        }
+    }
 }
 
 extension TouristMapViewController: MKMapViewDelegate {
     
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        //reuseID and pinView
-        let reuseID = "pin"
-        var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseID) as? MKPinAnnotationView
-        //if no pinView, then create one
-        if pinView == nil {
-            pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseID)
-            pinView!.animatesDrop = true
-            pinView!.draggable = false
+       
+            var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier("pin") as? MKPinAnnotationView
+            if pinView == nil {
+                pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "pin")
+                pinView!.draggable = false
+                pinView!.canShowCallout = false
+                pinView!.animatesDrop = true
+            }
+            else {
+                pinView!.annotation = annotation
+            }
+            return pinView
             
-        } else {
-            //otherwise, add annotation
-            pinView!.annotation = annotation
-        }
-        
-        return pinView
     }
     
-    func mapView(mapView: MKMapView, didDeselectAnnotationView view: MKAnnotationView) {
-        print("selected")
-        let locationGallery = self.storyboard?.instantiateViewControllerWithIdentifier("LocationGallery") as! LocationGalleryViewController
-        locationGallery.pin = view.annotation as! Pin
-       // photoVC.lat = view.annotation.coordinate.latitude
-       // photoVC.lon = view.annotation.coordinate.longitude
-        self.navigationController?.pushViewController(locationGallery, animated: true)
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        let pin = view.annotation as! Pin
+        performSegueWithIdentifier("showGallery", sender: pin)
     }
     
 }
