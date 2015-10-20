@@ -18,23 +18,29 @@ class GalleryRepository {
         FlickrClient.sharedInstance().search(pin.latitude, longitude: pin.longitude,
             completionHandler: {
                 code, data in
+                 dispatch_async(dispatch_get_main_queue(), {
                 if let photosDict = data as! NSDictionary!{
                     if let photoDict = photosDict.valueForKey("photos") as? NSDictionary{
                         if let photoArray = photoDict.valueForKey("photo") as? [[String: AnyObject]] {
                             _ = photoArray.map() { (dictionary: [String : AnyObject]) -> Photo in
+                               
+
                                 let photo = Photo(pin: pin, dict: dictionary, context: context)
                                 return photo
+                                
+                                
                             }
-                            //CoreDataStackManager.sharedInstance().saveContext()
                         }
+                        
                     }
+                    
                 } else {
                     errorHandler("unable to load photos")
                 }
+            })
             },
             errorHandler:{
                 errorResponse in
-                print(errorResponse)
                 errorHandler(errorResponse)
             }
         )

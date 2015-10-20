@@ -48,7 +48,7 @@ class LocationGalleryViewController: UIViewController {
         if !pin.photos.isEmpty {
             for photo in fetchedResultsController.fetchedObjects as! [Photo] {
                 if photo.image != nil {
-                    FlickrClient.Caches.imageCache.storeImage(nil, withIdentifier: photo.srcUrl)
+                    FlickrClient.Caches.imageCache.storeImage(nil, withIdentifier: photo.id)
                 }
                 self.sharedContext.deleteObject(photo)
             }
@@ -82,6 +82,18 @@ class LocationGalleryViewController: UIViewController {
                     error in
             })
         }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let layout : UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        layout.minimumLineSpacing = 2
+        layout.minimumInteritemSpacing = 0
+        
+        let width = floor((self.collectionView.frame.size.width/3) - 2)
+        layout.itemSize = CGSize(width: width, height: width)
+        collectionView.collectionViewLayout = layout
     }
 
 }
@@ -169,7 +181,7 @@ extension LocationGalleryViewController: UICollectionViewDelegate {
                 responseCode, data in
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     let image = UIImage(data: data)
-                    FlickrClient.Caches.imageCache.storeImage(image, withIdentifier: photo.srcUrl)
+                    FlickrClient.Caches.imageCache.storeImage(image, withIdentifier: photo.id)
                     // Assign image to image view of cell
                     cell.image.image = image
                     cell.indicator.stopAnimating()

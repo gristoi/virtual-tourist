@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "VirtualTourist/GalleryRepository.swift"
-            timestampString = "466692780.145436"
+            timestampString = "467035483.85787"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "21"
-            endingLineNumber = "21"
+            startingLineNumber = "22"
+            endingLineNumber = "22"
             landmarkName = "getPhotos(_:context:completionHandler:errorHandler:)"
             landmarkType = "5">
          </BreakpointContent>

@@ -49,8 +49,8 @@ class ImageCache {
             
             do{
                 try NSFileManager.defaultManager().removeItemAtPath(path)
-            }catch _ as NSError  {
-                //print(error)
+            }catch let error as NSError  {
+                print(error)
             }
             
             return
