@@ -34,6 +34,8 @@ class Photo: NSManagedObject {
         }
     }
     
+    // https://discussions.udacity.com/t/virtual-tourist-empty-an-array-in-an-nsmanagedobject/29447/7
+
     override func prepareForDeletion() {
             FlickrClient.Caches.imageCache.storeImage(nil, withIdentifier: self.id)
         }
