@@ -56,6 +56,7 @@ class LocationGalleryViewController: UIViewController {
         }
         GalleryRepository.sharedInstance().getPhotos(pin, context:sharedContext,   completionHandler: {
             a,b in
+            CoreDataStackManager.sharedInstance().saveContext()
             }, errorHandler: {
                 error in
         })
@@ -202,6 +203,7 @@ extension LocationGalleryViewController: UICollectionViewDelegate {
         // Remove from Core Data (Managed Object Context) and implicitly from device and collection view
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         self.sharedContext.deleteObject(photo)
+        CoreDataStackManager.sharedInstance().saveContext()
     }}
 
 extension LocationGalleryViewController: MKMapViewDelegate {
